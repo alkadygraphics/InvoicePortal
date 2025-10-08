@@ -1,0 +1,1544 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Alkady Docs Portal — Official Templates</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://raw.githack.com/eKoopmans/html2pdf/master/dist/html2pdf.bundle.js"></script>
+<style>
+/* ==== Fancy top tabs (template selector) ==== */
+:root{
+  --surface: #f5f7fb;
+  --ink-900:#0f172a;
+  --ink-600:#475569;
+  --brand:#3b6df6;          /* Blue */
+  --brand-600:#345ee0;
+  --brand-100:#e7efff;
+  --shadow: 0 10px 24px rgba(16,24,40,.08);
+  --ring: 0 0 0 3px rgba(59,109,246,.15);
+}
+.bank-terms {
+    line-height: 19px;
+    color: #4a4a4a !important;
+}
+
+/* container spacing a bit tighter on mobile already; keep structure */
+.templates{
+  display:flex;
+  gap:12px;
+  flex-wrap:wrap;
+  align-items:center;
+}
+
+/* pill button */
+.tpl{
+  position:relative;
+  border:1px dashed #e5e7eb;
+  background: linear-gradient(180deg,#ffffff 0%, #f8fafc 100%);
+  color: var(--ink-900);
+  border-radius: 999px;
+  padding: 10px 18px 10px 46px;        /* left space for icon */
+  font-weight: 600;
+  letter-spacing:.2px;
+  transition: border-color .15s ease, box-shadow .15s ease, transform .15s ease, background .15s ease;
+  box-shadow: inset 0 -2px 0 rgba(0,0,0,.02);
+  user-select:none;
+}
+
+/* left circular icon (arrow by default) */
+.tpl::before{
+  content: "→";
+  position:absolute; left:4px; top:50%; transform: translateY(-50%);
+  width:16px; height:16px; border-radius:999px;
+  background: #3a3a3a;
+  color: #ffffff;
+  display:grid; place-items:center;
+  font-size: 9px; font-weight: 800;
+}
+button#genBtn {
+    color: #343434 !important;
+}
+
+/* hover/focus */
+.tpl:hover{ border-color: var(--brand); box-shadow: var(--shadow); transform: translateY(-1px); }
+.tpl:focus-visible{ outline: none; box-shadow: var(--shadow), var(--ring); }
+
+/* active (selected tab) */
+.tpl.active{
+  background: linear-gradient(180deg, var(--brand) 0%, var(--brand-600) 100%);
+  color: #fff; border-color: transparent;
+}
+.tpl.active::before{
+  content: "✓";
+  background: rgba(255,255,255,.22);
+  color:#fff;
+}
+
+/* --- Docs Portal: template tiles ko arrow se bachao --- */
+.farea .templates .tpl{
+
+  color:inherit !important;
+  border:1px dashed #e5e7eb !important;
+  border-radius:12px !important;
+  box-shadow:none !important;
+  padding: 10px 8px !important;
+  text-align:center;
+}
+
+/* Arrow off for these tiles */
+.farea .templates .tpl::after{
+  display:none !important;
+}
+
+
+/* small size variant auto on very narrow screens */
+@media (max-width:560px){
+  .tpl{ padding:9px 14px 9px 42px; font-weight:600; }
+  .tpl::before{ width:16px; height:16px; font-size:9px; left:4px; }
+  .farea .templates .tpl{
+  font-size: 12px;}
+
+}
+
+
+
+/* ==== Action buttons polish (Generate/Download/Reset) – optional ==== */
+.actions button{
+  border-radius: 999px;
+  font-weight: 700;
+  box-shadow: 0 6px 20px rgba(59,109,246,.22);
+  transition: transform .12s ease, box-shadow .12s ease, opacity .12s ease;
+}
+.actions button:hover{ transform: translateY(-1px); }
+.actions button.secondary{
+  background: #111827;
+  box-shadow: 0 6px 20px rgba(17,24,39,.18);
+}
+.actions button.secondary:hover{ opacity:.95; }
+
+*{box-sizing:border-box}
+
+/* Base page */
+html,body{background:#e2eaf98a;margin:0;color:var(--ink)}
+.wrap{max-width:98%;margin:0 auto;padding:24px}
+h1{margin:0 0 12px;font-size:20px}
+
+
+/* Layout */
+.grid{display:grid;grid-template-columns:1fr 45%;gap:20px}
+.card{background:#fff;border-radius:12px;box-shadow:0 8px 24px rgba(10,20,40,.06);padding:18px}
+.preview-area{background:#fff;border-radius:12px;overflow:auto}
+.templates{display:flex;gap:10px;flex-wrap:wrap}
+.tpl{flex:1 1 160px;border:1px dashed #e5e7eb;padding:12px;border-radius:10px;cursor:pointer;text-align:center}
+.tpl:hover{border-color:var(--accent)}
+label{display:block;margin-top:10px;font-size:13px}
+input[type=text],input[type=date],textarea,select{width:100%;padding:8px;border:1px solid #e5e7eb;border-radius:8px;margin-top:6px}
+textarea{min-height:80px}
+.row{display:flex;gap:10px}.col{flex:1}
+.actions{display:flex;gap:8px;margin-top:12px}
+button{background:var(--accent);color:#fff;border:none;padding:10px 12px;border-radius:10px;cursor:pointer}
+button.secondary{background:#6b7280}
+
+/* Document canvas (responsive preview) */
+.doc{
+  position:relative;
+  width:min(740px,100%);
+  min-height:1040px;
+  margin:0 auto;
+  padding:24px;
+  border:1px solid #e5e7eb;
+  background:#fff;
+  page-break-inside:avoid;
+  overflow:hidden;                 /* absolute children ko clamp */
+}
+.doc header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:6px}
+.logo{height:101px}
+.logo-big{height:96px}
+.center{text-align:center}
+.company{font-size:12px;line-height:1.5}
+.company strong{font-size:13px}
+.meta{font-weight:700;font-size:14px;color:#4c4d4e; line-height: 1.3;}
+.meta span{font-weight:400;color:#3c3b3b}
+.title{font-size:22px;font-weight:700;letter-spacing:.4px;margin:10px 0 14px;text-align:center}
+.hr{height:1px;background:#d1d5db;margin:8px 0}
+.fldrow{display:flex;gap:10px;align-items:center;margin:14px 0}
+.label{min-width:175px;color:#111827;font-weight:700}
+.val{flex:1;border-bottom:1px solid #e5e7eb;padding:6px 0;overflow-wrap:anywhere;word-break:break-word}
+.small{font-size:14px;color:var(--muted)}
+
+.signrow{display:flex;justify-content:space-between;align-items:flex-end;gap:14px}
+.sigline{height:56px;border-bottom:1px solid #e5e7eb;width:240px}
+
+.bank-terms{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:46px}
+.box-h{font-weight:800;margin-bottom:6px}
+
+/* Stamp (preview default) */
+.stamp-fixed {
+    position: absolute;
+    right: 6px;
+    bottom: 71px;
+    height: 178px;
+}
+
+/* Images safety */
+img{max-width:100%;height:auto}
+
+/* ================== TABLES — Single Source of Truth ================== */
+
+/* Base table */
+.tbl{
+  display:table;
+  width:100%;
+  border-collapse:collapse;
+  table-layout:auto;
+}
+.tbl th,
+.tbl td{
+  border-bottom:1px solid #e5e7eb;
+  padding:8px;
+  font-size:11px;
+}
+.tbl .small {
+
+    font-size: 10px;
+}
+.tbl th{
+  background:#f3f4f6;
+  text-align:left;
+  font-weight:700;
+  white-space:nowrap;            /* headings ek line me */
+}
+.tbl td{
+  overflow-wrap:anywhere;
+  word-break:break-word;         /* data wrap allowed */
+}
+
+/* PAYMENT VOUCHER table (use colgroup in HTML) */
+#p_table{margin-top:8px;table-layout:fixed;}
+#p_table col:nth-child(1){width:55%}
+#p_table col:nth-child(2){width:20%}
+#p_table col:nth-child(3){width:25%}
+/* Amount right + no-wrap */
+#p_table th:nth-child(2),
+#p_table td:nth-child(2){text-align:right;white-space:nowrap}
+/* Detail/Note may wrap */
+#p_table td:nth-child(1),
+#p_table td:nth-child(3){white-space:normal;overflow-wrap:anywhere;word-break:break-word}
+
+/* SALES QUOTATION items columns + right aligned numbers */
+.doc[data-type="Sales Quotation"] .tbl th:nth-child(1){width:36%}  /* Description */
+.doc[data-type="Sales Quotation"] .tbl th:nth-child(2),
+.doc[data-type="Sales Quotation"] .tbl th:nth-child(3){width:9%} /* Ext/Int */
+.doc[data-type="Sales Quotation"] .tbl th:nth-child(4){width:9%} /* Model Year */
+.doc[data-type="Sales Quotation"] .tbl th:nth-child(5){width:5%}  /* QTY */
+.doc[data-type="Sales Quotation"] .tbl th:nth-child(6),
+.doc[data-type="Sales Quotation"] .tbl th:nth-child(7),
+.doc[data-type="Sales Quotation"] .tbl td:nth-child(6),
+.doc[data-type="Sales Quotation"] .tbl td:nth-child(7){
+  width:9%;
+  text-align:left;
+  white-space:nowrap;
+}
+
+/* Totals boxes (Quotation) */
+.totals{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}
+.totals .cell{display:flex;justify-content:space-between;border:1px solid #e5e7eb;border-radius:8px;padding:8px;font-weight:700;min-width:0}
+
+/* ================== MOBILE (preview only) ================== */
+@media (max-width:900px){
+  html,body{overflow-x:hidden}
+  .wrap{max-width:100%;padding:12px}
+  .grid{grid-template-columns:1fr;gap:12px}
+  .templates{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+  .tpl{flex:none;width:100%}
+  .preview-area{margin-top:8px;padding:10px}
+  .actions{flex-direction:column;gap:10px}
+  .actions button{width:100%}
+  input,textarea,select{font-size:16px}
+  .logo-big{height:72px}
+
+  .signrow{flex-wrap:wrap;gap:12px}
+  .signrow>div{flex:1 1 46%;min-width:140px}
+  .sigline{width:100%}
+
+  .stamp-fixed{width:92px;height:178px;right:16px;bottom:24px}
+
+
+  .totals{grid-template-columns:1fr}
+  .tbl th,.tbl td{padding:6px}
+  .title{font-size:20px}
+}
+
+/* ================== PDF EXPORT (A4, desktop layout) ================== */
+body.exporting{overflow:hidden}
+body {
+  font-family: Arial, Helvetica, sans-serif !important;
+}
+
+.box-h {
+
+    font-family: Helvetica;
+}
+#pdf-sandbox{position:fixed;inset:0;width:0;height:0;overflow:hidden;pointer-events:none;opacity:0;z-index:-1}
+
+.doc.for-pdf{
+  width:210mm !important;
+  min-height:297mm !important;
+  padding:12mm !important;
+  border:1px solid #e5e7eb;
+  background:#fff;
+  box-sizing:border-box;
+}
+div#r_terms {
+
+    line-height: 1.4;
+}
+
+.signrow .small {
+    font-size: 17px;
+    font-weight: 600;
+    color: #3c3c3c;
+    text-align: left;
+}
+/* Tables stay real tables in PDF */
+body.exporting .doc.for-pdf .tbl{
+  display:table !important;
+  width:100% !important;
+  table-layout:auto !important;
+  overflow:visible !important;
+}
+body.exporting .doc.for-pdf .tbl th{white-space:nowrap !important}
+body.exporting .doc.for-pdf .tbl td{white-space:normal !important;word-break:break-word !important}
+
+/* Totals two columns in PDF even if mobile triggered */
+body.exporting .doc.for-pdf .totals{
+  display:grid !important;
+  grid-template-columns:1fr 1fr !important;
+  gap:8px !important;
+}
+body.exporting .doc.for-pdf .totals .cell{min-width:0 !important}
+
+/* Signature row fixed 3 columns in PDF */
+body.exporting .doc.for-pdf .signrow{display:flex !important;flex-wrap:nowrap !important;gap:16px !important}
+body.exporting .doc.for-pdf .signrow>div{flex:1 1 33% !important}
+body.exporting .doc.for-pdf .sigline{width:100% !important}
+
+/* Stamp size/position in PDF */
+body.exporting .doc.for-pdf .stamp-fixed{
+  width:auto !important;
+  height:50mm !important;
+  right:12mm !important;
+  bottom:18mm !important;
+}
+
+
+
+
+/* ===== STOP mobile preview width jump (no effect on PDF) ===== */
+@media (max-width: 900px){
+  /* preview container & doc never widen the page */
+  body:not(.exporting) .preview-area,
+  body:not(.exporting) #preview,
+  body:not(.exporting) .doc{
+    max-width: 100% !important;
+    overflow-x: hidden !important;
+  }
+
+  /* tables: fixed layout + allow wrapping in preview */
+  body:not(.exporting) .tbl{
+    width: 100% !important;
+    table-layout: fixed !important;
+  }
+  body:not(.exporting) .tbl th,
+  body:not(.exporting) .tbl td{
+    white-space: normal !important;
+    word-break: break-word !important;
+    overflow-wrap: anywhere !important;
+  }
+
+  /* payment table header ko zyada width na enforce kare */
+  body:not(.exporting) #p_table th:nth-child(2){
+    min-width: unset !important;
+    text-align: right !important;
+  }
+}
+
+/* PROFORMA: items table widths */
+#pi_table th:nth-child(1){ width:4%;  }
+#pi_table th:nth-child(2){ width:10%; }
+#pi_table th:nth-child(3){ width:20%; }
+#pi_table th:nth-child(5){ width:10%; }
+#pi_table th:nth-child(6){ width:10%; }
+#pi_table th:nth-child(7){ width:16%; text-align:right; }
+#pi_table td:nth-child(7){ text-align:right; white-space:nowrap; }
+
+
+
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Alkady Docs Portal — Select Option </h1>
+  <div class="grid">
+    <!-- LEFT -->
+    <div class="card farea">
+      <div class="templates">
+        <div class="tpl" data-template="receipt">Receipt Voucher</div>
+        <div class="tpl" data-template="payment">Payment Voucher</div>
+        <div class="tpl" data-template="quotation">Sales Quotation</div>
+        <div class="tpl" data-template="deposit">Deposit Receipt</div>
+        <div class="tpl" data-template="proforma">Proforma Invoice</div>
+
+      </div>
+
+      <hr class="hr"/>
+
+      <div id="formArea">
+        <div id="noTplMsg">Choose a template to edit fields.</div>
+
+        <form id="docForm" style="display:none;">
+          <label>Document Type
+            <select id="docType" disabled><option>Receipt</option></select>
+          </label>
+
+          <!-- common -->
+          <div class="row">
+            <div class="col"><label>Client / Name <input id="fld_name" type="text"/></label></div>
+            <div class="col"><label>Amount (AED) <input id="fld_amount" type="text" placeholder="57200.00"/></label></div>
+          </div>
+          <div class="row">
+            <div class="col">
+              <label>Amount in words
+                <input id="fld_amountWords" type="text" placeholder="Auto (toggle below)"/>
+              </label>
+            </div>
+            <div class="col" style="display:flex;align-items:flex-end;gap:10px">
+              <label style="margin:0;display:flex;gap:8px;align-items:center">
+                <input id="opt_autowords" type="checkbox" checked/> Auto words from amount
+              </label>
+            </div>
+          </div>
+          <div class="row">
+            <div class="col"><label>Date <input id="fld_date" type="date"/></label></div>
+            <div class="col"><label>Voucher / Quote No <input id="fld_vno" type="text" placeholder="e.g. 726"/></label></div>
+          </div>
+          <label>Description / Being <textarea id="fld_desc" placeholder="PAYMENT FOR TOYOTA COROLLA 2024 GCC XLI"></textarea></label>
+
+          <!-- RECEIPT -->
+          <div id="section_receipt" style="display:none">
+            <div class="row">
+              <div class="col"><label>Client Name <input id="fld_clientId" type="text" placeholder="optional"/></label></div>
+              <div class="col"><label>Payment Method
+                <select id="fld_payMethod"><option>Cash</option><option>Transfer</option><option>Bank</option><option>Card</option></select>
+              </label></div>
+            </div>
+            <label>Receipt Terms (each line = one point)
+              <textarea id="fld_receiptTerms">1. Balance will be paid within 4 days.
+2. In case of failure, advance will be non refundable.
+3. Once vehicle sold will not be returned or exchanged.
+4. The customer is requested to check the vehicle thoroughly as the company will neither take any responsibility after the deal nor will attend any claims.</textarea>
+            </label>
+          </div>
+
+          <!-- PAYMENT -->
+       <!-- PAYMENT (no extra input) -->
+<div id="section_payment" style="display:none">
+  <div class="row">
+    <div class="col">
+      <label>Mode
+        <select id="fld_mode">
+          <option>Cash</option><option>Bank</option><option>Transfer</option><option>Card</option>
+        </select>
+      </label>
+    </div>
+    <div class="col">
+      <label>Ref (e.g., 1232 / 2025)
+        <input id="fld_ref" type="text"/>
+      </label>
+    </div>
+  </div>
+  <!-- Payment Details textarea removed -->
+</div>
+
+
+          <!-- QUOTATION -->
+          <div id="section_quotation" style="display:none">
+            <div class="row">
+              <div class="col"><label>Tel <input id="fld_tel" type="text"/></label></div>
+              <div class="col"><label>Email <input id="fld_email" type="text"/></label></div>
+            </div>
+            <div class="row">
+              <div class="col"><label>Export To <input id="fld_export" type="text"/></label></div>
+              <div class="col"><label>Validity (days) <input id="fld_validity" type="text" value="3"/></label></div>
+            </div>
+            <div class="row">
+              <div class="col"><label>Sales Ref <input id="fld_salesref" type="text" value="MOHEMD"/></label></div>
+            </div>
+
+            <label>Item / Description <input id="fld_item" type="text" placeholder="ISUZU D-MAX GT 3.0L D/C MODEL 2026 A/T"/></label>
+            <div class="row">
+              <div class="col"><label>Ext. Color <input id="fld_ext" type="text"/></label></div>
+              <div class="col"><label>Int. Color <input id="fld_int" type="text"/></label></div>
+              <div class="col"><label>Model Year <input id="fld_year" type="text"/></label></div>
+              <div class="col"><label>QTY <input id="fld_qty" type="text" value="1"/></label></div>
+            </div>
+            <div class="row">
+              <div class="col"><label>Unit Price (AED) <input id="fld_unit" type="text" placeholder="116000.00"/></label></div>
+              <div class="col"><label>Chassis No <input id="fld_chassis" type="text"/></label></div>
+            </div>
+<!-- ADD: Shipping Amount (AED) -->
+<div class="row">
+  <div class="col">
+    <label>Shipping Amount (AED)
+      <input id="fld_shipping" type="text" placeholder="6500.00"/>
+    </label>
+  </div>
+  <div class="col"></div>
+</div>
+
+            <label>Arabic Terms
+              <textarea id="fld_termsAr">السعر شامل أوراق التصدير ولوحات التصدير
+التسليم خلال سبعة أيام عمل بعد استلام كامل القيمة</textarea>
+            </label>
+          </div>
+          
+          
+          <!-- start PROFORMA form section -->
+<!-- PROFORMA: only the new fields -->
+<div id="section_proforma" class="tpl-section" style="display:none">
+  <div class="row">
+    <div class="col">
+      <label>TRN #</label>
+      <input id="fld_trn" type="text" placeholder="Client TRN">
+    </div>
+    <div class="col">
+      <label>Car #</label>
+      <input id="fld_car" type="text" placeholder="e.g., 189">
+    </div>
+  </div>
+  
+    <div class="row">
+    <div class="col">
+      <label>Address</label>
+      <textarea id="fld_addr" placeholder="Bill To address"></textarea>
+    </div>
+    <div class="col">
+      <label>Country</label>
+      <input id="fld_country" type="text" placeholder="e.g., TUNISIA">
+    </div>
+  </div>
+
+
+
+  <div class="row">
+    <div class="col">
+      <label>Export Destination</label>
+      <input id="fld_exportdst" type="text" placeholder="e.g., TUNIS">
+    </div>
+    <div class="col">
+      <label>Exit Destination</label>
+      <input id="fld_exitdst" type="text" placeholder="e.g., JEBEL ALI">
+    </div>
+    
+    <div class="row">
+
+     <div class="col"><label>Chassis No <input id="fld_pi_chassis" type="text"/></label></div>
+    
+   <div class="col">
+    <label>Model Description</label>
+    <input id="fld_pi_item" type="text" placeholder="e.g., Toyota Corolla 2024 XLI">
+  </div>
+  </div>
+
+  <div class="row">
+   <div class="col">
+    <label>Model Year</label>
+    <input id="fld_pi_year" type="text" placeholder="e.g., 2024">
+  </div>
+      <div class="col">
+    <label>Ext. Color</label>
+    <input id="fld_pi_ext" type="text" placeholder="e.g., Gray">
+  </div>
+  </div>
+  </div>
+  
+  
+  
+</div>
+
+
+
+
+
+          
+        <!-- end proforma section form -->      
+          
+
+          <!-- controls -->
+          <div class="controls">
+            <label style="display:flex;align-items:center;gap:8px"><input id="opt_logo" type="checkbox" checked/> Show Logo</label>
+            <label style="display:flex;align-items:center;gap:8px"><input id="opt_signstamp" type="checkbox" checked/> Show Sign-Stamp</label>
+            <label style="display:flex;align-items:center;gap:8px">
+  <input id="opt_bank" type="checkbox"> Show Bank Detail
+</label>
+          </div>
+
+          <div class="actions">
+            <button id="genBtn" type="button">Generate Preview</button>
+            <button id="pdfBtn" type="button" class="secondary">Download PDF</button>
+            <button id="resetBtn" type="button" class="secondary">Reset</button>
+          </div>
+        </form>
+      </div>
+
+     
+    </div>
+
+    <!-- RIGHT -->
+    <div>
+      <div class="card preview-area">
+        <h3 style="margin-top:0">Preview</h3>
+        <div id="preview" class="doc"><div style="text-align:center;color:#9ca3af;padding:80px 0">Choose a template &amp; click Generate Preview.</div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ===================== TEMPLATES ===================== -->
+<template id="tpl_receipt">
+  <div class="doc" data-type="Receipt Voucher">
+    <header>
+      <div class="company">
+        <strong id="co_name"></strong><br/>
+        <span id="co_addr1"></span><br/>
+        <span id="co_addr2"></span><br/>
+        <span id="co_addr3"></span>
+      </div>
+      <div class="meta" style="text-align:left">
+        <!-- only right meta (no small logo) -->
+        Date : <span id="r_date"></span><br/>
+        Voucher No : <span id="r_vno"></span><br/>
+        Payment Method : <span id="r_payMethod"></span>
+      </div>
+    </header>
+
+    <!-- big centered logo -->
+    <div class="center" style="margin-top:4px;margin-bottom:6px">
+      <img class="logo-big" id="logo_r_big" src="assets/alkady_logo.png" alt="logo"/>
+    </div>
+
+    <div class="title">RECEIPT VOUCHER</div>
+    
+    
+
+    <div class="fldrow"><div class="label">Voucher No :</div><div class="val" id="r_vno_2"></div></div>
+    <div class="fldrow"><div class="label">Date :</div><div class="val" id="r_date_2"></div></div>
+
+    <div class="fldrow"><div class="label">Received from Mr / Ms :</div><div class="val" id="r_name"></div></div>
+    <div class="fldrow"><div class="label">Client Name :</div><div class="val" id="r_clientId"></div></div>
+    <div class="fldrow"><div class="label">Voucher Amount :</div><div class="val"><span id="r_amount"></span> &nbsp; AED</div></div>
+    <div class="fldrow"><div class="label">Amount in words :</div><div class="val" id="r_amountWords"></div></div>
+    <div class="fldrow"><div class="label">Being :</div><div class="val" id="r_desc"></div></div>
+
+    <div style="margin-top:40px">
+      <div class="box-h">Terms</div>
+      <div id="r_terms" class="small"></div>
+    </div>
+
+    <div style="margin-top:18px" class="signrow">
+      <div>
+        <div class="small">Cashier Sign</div>
+        <div class="sigline"></div>
+      </div>
+      <div style="text-align:right">
+        <div class="small">Customer Sign</div>
+        <div class="sigline" style="margin-left:auto"></div>
+      </div>
+    </div>
+    
+<div class="bank-terms">
+  <div id="r_bank_wrap">            <!-- 👈 wrapper -->
+    <div class="box-h">Bank Detail</div>
+    <div class="small" id="r_bank"></div>
+  </div>
+</div>
+
+
+    <img id="r_signstamp" class="stamp-fixed" src="assets/Sign-Stamp.png" alt="sign-stamp"/>
+  </div>
+</template>
+
+<template id="tpl_payment">
+  <div class="doc" data-type="Payment Voucher">
+    <header>
+      <div class="company">
+        <strong id="co_name_p"></strong><br/>
+        <span id="co_addr1_p"></span><br/>
+        <span id="co_addr2_p"></span><br/>
+        <span id="co_addr3_p"></span>
+      </div>
+      <div class="meta" style="text-align:left">
+        <img class="logo" id="logo_p" src="assets/alkady_logo.png" alt="logo"/><br/>
+        Payment Method : <span id="p_mode"></span><br/>
+        Ref : <span id="p_ref"></span><br/>
+        Date : <span id="p_date"></span><br/>
+        Voucher No : <span id="p_vno"></span>
+      </div>
+    </header>
+
+    <div class="title">PAYMENT VOUCHER</div>
+
+    <div class="fldrow"><div class="label">Paid To Mr / Ms :</div><div class="val" id="p_name"></div></div>
+    <div class="fldrow"><div class="label">Voucher Amount :</div><div class="val"><span id="p_amount"></span> &nbsp; AED</div></div>
+    <div class="fldrow"><div class="label">Amount in words :</div><div class="val" id="p_amountWords"></div></div>
+    <div class="fldrow"><div class="label">Being :</div><div class="val" id="p_desc"></div></div>
+
+  <!-- PAYMENT DETAILS TABLE (full-width, locked columns) -->
+<table class="tbl" id="p_table" style="margin-top:45px; table-layout:fixed;">
+  <colgroup>
+    <col style="width:35%">
+    <col style="width:20%">
+    <col style="width:45%">
+  </colgroup>
+  <thead>
+    <tr>
+      <th>Payment Detail</th>
+      <th style="text-align:right">Amount (AED)</th>
+      <th>Note</th>
+    </tr>
+  </thead>
+  <tbody></tbody>
+</table>
+
+
+
+    <div style="margin-top:62px" class="signrow">
+      <div>
+        <div class="small">Cashier Sign</div>
+        <div class="sigline"></div>
+      </div>
+      <div>
+        <div class="small">Received By</div>
+        <div class="sigline"></div>
+      </div>
+      <div style="text-align:right">
+        <div class="small">Authorized</div>
+        <div class="sigline" style="width:200px"></div>
+      </div>
+    </div>
+    
+<div class="bank-terms">
+  <div id="p_bank_wrap">
+    <div class="box-h">Bank Detail</div>
+    <div class="small" id="p_bank"></div>
+  </div>
+</div>
+
+
+
+    <img id="p_signstamp" class="stamp-fixed" src="assets/Sign-Stamp.png" alt="sign-stamp"/>
+  </div>
+</template>
+
+<template id="tpl_quotation">
+  <div class="doc" data-type="Sales Quotation">
+    <header>
+      <div class="company">
+        <strong id="co_name_q"></strong><br/>
+        <span id="co_addr1_q"></span><br/>
+        <span id="co_addr2_q"></span><br/>
+        <span id="co_addr3_q"></span>
+      </div>
+      <div class="meta" style="text-align:left">
+        <img class="logo" id="logo_q" src="assets/alkady_logo.png" alt="logo"/><br/>
+        Sales Quote # : <span id="q_vno"></span><br/>
+        Quote Date : <span id="q_date"></span><br/>
+        Validity : <span id="q_validity"></span> days<br/>
+        Sales Ref : <span id="q_salesref"></span>
+      </div>
+    </header>
+
+    <div class="title">Sales Quotation</div>
+
+    <div class="fldrow"><div class="label">Name :</div><div class="val" id="q_name"></div></div>
+    <div class="fldrow"><div class="label">Tel :</div><div class="val" id="q_tel"></div></div>
+    <div class="fldrow"><div class="label">Email :</div><div class="val" id="q_email"></div></div>
+    <div class="fldrow"><div class="label">Export To :</div><div class="val" id="q_export"></div></div>
+    <div class="fldrow"><div class="label">Note :</div><div class="val" id="q_desc"></div></div>
+
+    <table class="tbl" style="margin-top:8px">
+      <thead>
+        <tr>
+          <th>Description</th><th>Ext. <br>Color</th><th>Int. <br>Color</th><th>Model <br>Year</th><th>QTY</th><th>Unit Price<br> AED</th><th style="text-align:left">Total Amount <br>AED</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>
+  <span id="q_item"></span>
+  <!-- chassis line ko wrapper me rakha hai -->
+  <span id="q_chassis_row" style="display:none">
+    <br/>
+    <span class="small">CHASSIS NO. <span id="q_chassis"></span></span>
+  </span>
+</td>
+
+          <td id="q_ext"></td><td id="q_int"></td><td id="q_year"></td><td id="q_qty"></td><td id="q_unit"></td>
+          <td style="text-align:right" id="q_total"></td>
+        </tr>
+      </tbody>
+    </table>
+<!-- ADD: Amount summary (Total / Shipping / Grand) -->
+<!-- Summary (show only if shipping > 0) -->
+<!-- Summary: only shows when shipping > 0 -->
+<table class="tbl" id="q_summary" style="margin-top:8px; display:none">
+  <tbody>
+    <tr>
+      <td class="band">Shipping Amount</td>
+      <td style="text-align:right">
+        <span id="q_shipping"></span> &nbsp; AED
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+
+    <div class="totals">
+      <div class="cell"><div>Total of Units</div><div id="q_units">1</div></div>
+      <div class="cell"><div>Grand Total</div><div id="q_grand"></div></div>
+    </div>
+
+    <!-- Amount in words band -->
+    <table class="tbl" style="margin-top:8px">
+      <tbody>
+        <tr>
+          <td class="band" style="width:30%">Amount in words</td>
+          <td id="q_words"></td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="bank-terms">
+      <div>
+        <div class="box-h">Bank Detail</div>
+        <div class="small" id="q_bank"></div>
+      </div>
+      <div>
+        <div class="box-h">Terms &amp; Conditions</div>
+        <div class="small" id="q_termsAr"></div>
+      </div>
+    </div>
+
+    <img id="q_signstamp" class="stamp-fixed" src="assets/Sign-Stamp.png" alt="sign-stamp"/>
+  </div>
+</template>
+
+<template id="tpl_deposit">
+  <div class="doc" data-type="Deposit Receipt">
+    <header>
+      <div class="company">
+        <strong id="co_name_d"></strong><br/>
+        <span id="co_addr1_d"></span><br/>
+        <span id="co_addr2_d"></span><br/>
+        <span id="co_addr3_d"></span>
+      </div>
+      <div class="meta" style="text-align:left">
+        <img class="logo" id="logo_d" src="assets/alkady_logo.png" alt="logo"/><br/>
+        Date : <span id="d_date"></span><br/>
+        Voucher No : <span id="d_vno"></span>
+      </div>
+    </header>
+
+    <div class="title">DEPOSIT RECEIPT</div>
+
+    <div class="fldrow"><div class="label">Client Name :</div><div class="val" id="d_name"></div></div>
+    <div class="fldrow"><div class="label">Deposit Amount :</div><div class="val"><span id="d_amount"></span> &nbsp; AED</div></div>
+    <div class="fldrow"><div class="label">Amount in words :</div><div class="val" id="d_amountWords"></div></div>
+    <div class="fldrow"><div class="label">Being :</div><div class="val" id="d_desc"></div></div>
+
+    <div style="margin-top:40px">
+      <div class="box-h">Terms</div>
+      <div class="small">- Balance will be paid within 4 days.<br/>- In case of failure, advance will be non refundable.</div>
+    </div>
+    
+
+
+
+    <div style="margin-top:45px" class="signrow">
+      <div>
+        <div class="small">Cashier Sign</div>
+        <div class="sigline"></div>
+      </div>
+      <div style="text-align:right">
+        <div class="small">Customer Sign</div>
+        <div class="sigline" style="margin-left:auto"></div>
+      </div>
+    </div>
+<div class="bank-terms">
+  <div id="d_bank_wrap">
+    <div class="box-h">Bank Detail</div>
+    <div class="small" id="d_bank"></div>
+  </div>
+</div>
+
+    <img id="d_signstamp" class="stamp-fixed" src="assets/Sign-Stamp.png" alt="sign-stamp"/>
+  </div>
+</template>
+
+
+
+<template id="tpl_proforma">
+  <div class="doc" data-type="Proforma Invoice">
+    <header>
+      <div class="company">
+        <strong id="co_name"></strong><br/>
+        <span id="co_addr1"></span><br/>
+        <span id="co_addr2"></span><br/>
+        <span id="co_addr3"></span>
+      </div>
+      <div class="meta" style="text-align:left">
+        <div><span>Order No # :</span> <span id="pi_no"></span></div>
+        <div><span>Order Date :</span> <span id="pi_date"></span></div>
+        <div><span>TRN # :</span> <span id="pi_trn"></span></div>
+      </div>
+    </header>
+
+    <div class="center">
+      <img id="logo_p" class="logo-big" src="assets/alkady_logo.png" alt="logo"/>
+      <div class="title">Proforma Invoice</div>
+    </div>
+
+    <table class="tbl" style="margin-top:6px">
+      <tbody>
+      <tr>
+        <td class="band" style="width:16%">Bill To :</td>
+        <td style="width:34%"><span id="pi_bill_name"></span></td>
+        <td class="band" style="width:16%">Country :</td>
+        <td style="width:34%"><span id="pi_country"></span></td>
+      </tr>
+      <tr>
+        <td class="band">Address :</td>
+        <td><span id="pi_bill_addr"></span></td>
+        <td class="band">Export Destination :</td>
+        <td><span id="pi_export_dest"></span></td>
+      </tr>
+      <tr>
+        <td class="band">TRN # :</td>
+        <td><span id="pi_bill_trn"></span></td>
+        <td class="band">Exit Destination :</td>
+        <td><span id="pi_exit_dest"></span></td>
+      </tr>
+      </tbody>
+    </table>
+
+    <div class="fldrow">
+      <div class="label">Note :</div>
+      <div class="val" id="pi_note"></div>
+    </div>
+
+    <table class="tbl" id="pi_table">
+      <thead>
+      <tr>
+        <th>#</th>
+        <th>Car #</th>
+        <th>Chassis #</th>
+        <th>Model Description</th>
+        <th>Model Year</th>
+        <th>Ext. Color</th>
+        <th>Net Price AED</th>
+      </tr>
+      </thead>
+      <tbody>
+      <tr>
+        <td>1</td>
+        <td id="pi_car"></td>
+        <td id="pi_chassis"></td>
+        <td id="pi_model"></td>
+        <td id="pi_year"></td>
+        <td id="pi_color"></td>
+        <td id="pi_unit" style="text-align:right; white-space:nowrap;"></td>
+      </tr>
+      </tbody>
+    </table>
+
+    <div class="totals">
+      <div class="cell"><div>Total of Units</div><div id="pi_units">1</div></div>
+      <div class="cell"><div>Total Amount</div><div id="pi_total"></div></div>
+    </div>
+    <div class="totals">
+        <div class="cell"><div>Currency</div><div>AED</div></div>
+      <div class="cell"><div>Grand Total</div><div id="pi_grand"></div></div>
+      
+    </div>
+
+
+
+
+    <table class="tbl" style="margin-top:8px">
+      <tbody>
+      <tr>
+        <td class="band" style="width:30%">Amount in words</td>
+        <td id="pi_words"></td>
+      </tr>
+      </tbody>
+    </table>
+
+    <div class="bank-terms" id="pi_bankWrap">
+      <div>
+        <div class="box-h">Bank :</div>
+        <div class="small" id="pi_bank"></div>
+      </div>
+    </div>
+
+    <img id="pi_signstamp" class="stamp-fixed" src="assets/Sign-Stamp.png" alt="sign-stamp"/>
+  </div>
+</template>
+
+
+<script>
+  // ===== Company & Bank (edit once) =====
+  const COMPANY = {
+    name: "ALKADY CARS FZE",
+    addr1: "P6-ELOB Office Free Zone",
+    addr2: "Sharjah, UAE",
+    addr3: ""
+  };
+const BANK = {
+  bank: "Abu Dhabi Islamic Bank (ADIB)",
+  account_name: "MOHAMED ELKADY NEW AUTOMOBILE TRADING FOR EXPORT LLC",
+  currency: "AED ( dirhams )",
+  account_no: "19143782",
+  iban: "AE1705000000000019143782",
+  swift: "ABDIAEAD",
+  address: "SHK. ZAYED ROAD - DUBAI"
+};
+function bankBlockHTML(){
+  return `<b>Bank</b> : ${BANK.bank}<br/>
+<b>Account Name :</b> ${BANK.account_name}<br/>
+<b>Currency :</b> ${BANK.currency}<br/>
+<b>Account NO :</b> ${BANK.account_no}<br/>
+<b>IBAN :</b> ${BANK.iban}<br/>
+<b>SWIFT CODE :</b> ${BANK.swift}<br/>
+<b>Address :</b> ${BANK.address}`;
+}
+
+  // ===== UI =====
+  const tplEls = document.querySelectorAll('.tpl');
+  const form = document.getElementById('docForm');
+  const noTpl = document.getElementById('noTplMsg');
+  const preview = document.getElementById('preview');
+  const docType = document.getElementById('docType');
+  let currentTpl = null;
+
+  tplEls.forEach(el => el.addEventListener('click', () => selectTemplate(el.dataset.template)));
+
+function selectTemplate(name){
+  currentTpl = name;
+  noTpl.style.display = 'none';
+  form.style.display = 'block';
+  docType.value = ({
+  receipt:'Receipt Voucher',
+  payment:'Payment Voucher',
+  quotation:'Sales Quotation',
+  deposit:'Deposit Receipt',
+  proforma:'Proforma Invoice'
+})[name];
+
+
+
+  document.getElementById('opt_bank').checked = (name === 'quotation');
+
+
+  // per-template sections (as-is)
+  document.getElementById('section_receipt').style.display   = (name==='receipt'   ? '' : 'none');
+  document.getElementById('section_payment').style.display   = (name==='payment'   ? '' : 'none');
+  document.getElementById('section_quotation').style.display = (name==='quotation' ? '' : 'none');
+  document.getElementById('section_proforma').style.display = (name === 'proforma') ? 'block' : 'none';
+
+
+  // === NEW: Quotation me Amount/Words/AutoWords ko hide + disable ===
+  const isQuote = (name === 'quotation');
+
+  const amtInput = document.getElementById('fld_amount');
+  const wordsInp = document.getElementById('fld_amountWords');
+  const autoCB   = document.getElementById('opt_autowords');
+
+  // in teenon ke parent .col ko locate karke toggle karein
+  const amtCol   = amtInput ? amtInput.closest('.col') : null;
+  const wordsCol = wordsInp ? wordsInp.closest('.col') : null;
+  const autoCol  = autoCB   ? autoCB.closest('.col')   : null;
+
+  [amtCol, wordsCol, autoCol].forEach(el => {
+    if (!el) return;
+    el.style.display = isQuote ? 'none' : '';
+  });
+
+  // disable + clear when quotation
+  [amtInput, wordsInp].forEach(el => {
+    if (!el) return;
+    el.disabled = isQuote;
+    if (isQuote) el.value = '';
+  });
+  if (autoCB){
+    autoCB.disabled = isQuote;
+    if (isQuote) autoCB.checked = false;
+  }
+
+  // reset values as you already do
+  resetFormValues();
+}
+
+
+  function resetFormValues(){
+    const today = new Date().toISOString().slice(0,10);
+    setVal('fld_name',''); setVal('fld_amount',''); setVal('fld_amountWords','');
+    setVal('fld_date', today); setVal('fld_vno',''); setVal('fld_desc','');
+    setVal('fld_clientId',''); setVal('fld_payMethod','Cash');
+    setVal('fld_mode','Cash'); setVal('fld_ref',''); setVal('fld_payTable','');
+    setVal('fld_tel',''); setVal('fld_email',''); setVal('fld_export',''); setVal('fld_validity','3');
+    setVal('fld_salesref',''); setVal('fld_item',''); setVal('fld_ext',''); setVal('fld_int','');
+    setVal('fld_year',''); setVal('fld_qty','1'); setVal('fld_unit',''); setVal('fld_chassis','');
+    setVal('fld_shipping','');
+
+
+    document.getElementById('opt_logo').checked = true;
+    document.getElementById('opt_signstamp').checked = true;
+    document.getElementById('opt_autowords').checked = true;
+
+    preview.innerHTML = `<div style="text-align:center;color:#9ca3af;padding:80px 0">Ready. Click Generate Preview.</div>`;
+  }
+  function setVal(id,v){ const el=document.getElementById(id); if(el) el.value=v; }
+  function getVal(id){ const el=document.getElementById(id); return el? (el.value||'') : ''; }
+
+  // Auto "amount in words" (also used by quotation total)
+  document.getElementById('fld_amount').addEventListener('input', syncAmountWords);
+  document.getElementById('opt_autowords').addEventListener('change', syncAmountWords);
+  function syncAmountWords(){
+    if(document.getElementById('opt_autowords').checked){
+      const num=parseMoney(getVal('fld_amount'));
+      document.getElementById('fld_amountWords').value = numberToWordsEN(Math.round(num)) + " Only";
+    }
+  }
+
+  document.getElementById('genBtn').addEventListener('click', generatePreview);
+  document.getElementById('pdfBtn').addEventListener('click', downloadPDF);
+  document.getElementById('resetBtn').addEventListener('click', resetFormValues);
+
+  ['opt_logo','opt_signstamp'].forEach(id=>{
+    document.getElementById(id).addEventListener('change', ()=>{
+      const logos = preview.querySelectorAll('#logo_p,#logo_q,#logo_d,#logo_r_big');
+      const ss = preview.querySelectorAll('#r_signstamp,#p_signstamp,#q_signstamp,#d_signstamp');
+      logos.forEach(i=> i.style.display = document.getElementById('opt_logo').checked ? '' : 'none');
+      ss.forEach(i=> i.style.display = document.getElementById('opt_signstamp').checked ? '' : 'none');
+    });
+  });
+
+function fillCompany(scope){
+    const suffixes = ["", "_p", "_q", "_d"]; // receipt, payment, quotation, deposit
+    const put = (id, suf, val) => {
+      const el = scope.querySelector(`#${id}${suf}`);
+      if (el) el.textContent = val;
+    };
+    suffixes.forEach(suf => {
+      put("co_name",  suf, COMPANY.name);
+      put("co_addr1", suf, COMPANY.addr1);
+      put("co_addr2", suf, COMPANY.addr2);
+      put("co_addr3", suf, COMPANY.addr3);
+    });
+  }
+  function bankBlock(){
+    return `<b>Bank :</b> ${BANK.bank}<br/>
+<b>Account Name :</b> ${BANK.account_name}<br/>
+<b>Currency :</b> ${BANK.currency}<br/>
+<b>Account NO :</b> ${BANK.account_no}<br/>
+<b>IBAN :</b> ${BANK.iban}<br/>
+<b>SWIFT CODE :</b> ${BANK.swift}<br/>
+<b>Address </b>: ${BANK.address}`;
+  }
+  function parseMoney(x){ return Number(String(x).replace(/[^0-9.]/g,'')||0); }
+  function fmt(n){ return n.toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2}); }
+
+  function generatePreview(){
+    if(!currentTpl) return alert('Choose a template first.');
+    const tpl = document.getElementById('tpl_'+currentTpl);
+    const node = tpl.content.cloneNode(true);
+
+
+
+
+    fillCompany(node);
+   
+
+
+// === Bank Detail (Quotation only, checkbox se control) ===
+// --- Bank Detail (checkbox controlled) ---
+// --- Bank Detail (checkbox controlled) ---
+const showBank = document.getElementById('opt_bank')?.checked;
+
+[
+  ['#q_bank_wrap', '#q_bank'],
+  ['#p_bank_wrap', '#p_bank'],
+  ['#r_bank_wrap', '#r_bank'],
+  ['#d_bank_wrap', '#d_bank']
+].forEach(([wrapSel, slotSel]) => {
+  const wrap = node.querySelector(wrapSel);
+  const slot = node.querySelector(slotSel);
+  if (!wrap || !slot) return;
+
+  if (showBank) {
+    slot.innerHTML = bankBlockHTML();
+    wrap.style.display = '';      // show heading + content
+  } else {
+    slot.innerHTML = '';
+    wrap.style.display = 'none';  // hide heading + content
+  }
+});
+
+
+
+
+    // common mapping
+    map(node,{
+      r_name:'fld_name', r_amount:'fld_amount', r_amountWords:'fld_amountWords', r_date:'fld_date', r_vno:'fld_vno', r_desc:'fld_desc', r_clientId:'fld_clientId',
+      r_payMethod:'fld_payMethod', r_vno_2:'fld_vno', r_date_2:'fld_date',
+      p_name:'fld_name', p_amount:'fld_amount', p_amountWords:'fld_amountWords', p_date:'fld_date', p_vno:'fld_vno', p_desc:'fld_desc', p_mode:'fld_mode', p_ref:'fld_ref',
+      d_name:'fld_name', d_amount:'fld_amount', d_amountWords:'fld_amountWords', d_date:'fld_date', d_vno:'fld_vno', d_desc:'fld_desc',
+      q_date:'fld_date', q_vno:'fld_vno', q_validity:'fld_validity', q_salesref:'fld_salesref',
+      q_name:'fld_name', q_tel:'fld_tel', q_email:'fld_email', q_export:'fld_export', q_desc:'fld_desc',
+      q_item:'fld_item', q_ext:'fld_ext', q_int:'fld_int', q_year:'fld_year', q_qty:'fld_qty', q_unit:'fld_unit', q_chassis:'fld_chassis'
+    });
+    
+    // Chassis line: blank ho to hide, warna show
+const chassisVal = (getVal('fld_chassis') || '').trim();
+const chWrap = node.querySelector('#q_chassis_row');
+if (chWrap) chWrap.style.display = chassisVal ? '' : 'none';
+
+
+    // receipt terms
+    const rTermsEl = node.querySelector('#r_terms');
+    if(rTermsEl){
+      const recTerms = getVal('fld_receiptTerms').split('\n').filter(Boolean).map(l=>l.trim());
+      rTermsEl.innerHTML = recTerms.map(t=>t.replace(/^\d+\.\s*/,'')).map((t,i)=>`${i+1}. ${t}`).join('<br/>');
+    }
+
+    // payment table
+<!-- generatePreview() ke andar yeh block paste/replace karein -->
+/*** PAYMENT TABLE (robust parsing) ***/
+/*** PAYMENT TABLE — auto from Name, Amount, Being ***/
+const tb = node.querySelector('#p_table tbody');
+if (tb) {
+  tb.innerHTML = '';
+  const who   = getVal('fld_name');      // Client / Name
+  const amtN  = parseMoney(getVal('fld_amount'));
+  const amt   = amtN ? fmt(amtN) : getVal('fld_amount');
+  const note  = getVal('fld_desc');      // Description / Being
+
+  const tr = document.createElement('tr');
+  tr.innerHTML = `
+    <td>${who || '—'}</td>
+    <td style="text-align:right">${amt || '—'}</td>
+    <td>${note || '—'}</td>`;
+  tb.appendChild(tr);
+}
+
+
+
+    // quotation totals + words
+  // ===== QUOTATION: totals, shipping, words =====
+// ===== QUOTATION: totals, shipping, words =====
+// ===== QUOTATION: totals, shipping, words =====
+const qty      = parseInt(getVal('fld_qty') || '1', 10) || 1;
+const unit     = parseMoney(getVal('fld_unit'));
+const total    = unit * qty;
+
+const shipping = parseMoney(getVal('fld_shipping'));   // input: Shipping Amount (AED)
+const grand    = total + (isNaN(shipping) ? 0 : shipping);
+
+// Items table total
+setText(node, 'q_total', fmt(total));
+
+// 2-box grid
+setText(node, 'q_units', String(qty));
+setText(node, 'q_grand', fmt(grand));
+
+// Summary: show only when shipping > 0
+const summary = node.querySelector('#q_summary');
+if (summary) {
+  if (shipping > 0) {
+    summary.style.display = '';
+    setText(node, 'q_shipping', fmt(shipping));
+    setText(node, 'q_grand2', fmt(grand));
+  } else {
+    summary.style.display = 'none';
+  }
+}
+
+
+
+// Amount in words = GRAND
+const qWordsEl = node.querySelector('#q_words');
+if (qWordsEl) qWordsEl.textContent = numberToWordsEN(Math.round(grand)) + " Only";
+
+
+const bankDiv = node.querySelector('#q_bank');
+if (bankDiv) bankDiv.innerHTML = bankBlockHTML();
+
+
+// Arabic Terms RTL (same as before)
+const arEl = node.querySelector('#q_termsAr');
+if (arEl){
+  const termsText = (getVal('fld_termsAr') || '').trim();
+  arEl.innerText = termsText;
+  if (/[\u0600-\u06FF]/.test(termsText)) {
+    arEl.dir = 'rtl';
+    arEl.style.textAlign = 'right';
+  } else {
+    arEl.dir = 'ltr';
+    arEl.style.textAlign = 'left';
+  }
+}
+
+
+// ---------- Start PROFORMA INVOICE ----------
+// ---------- PROFORMA INVOICE (fixed) ----------
+if (currentTpl === 'proforma') {
+  // Basic who/when
+  map(node, {
+    pi_no:   'fld_vno',
+    pi_date: 'fld_date',
+    pi_bill_name: 'fld_name',
+    pi_note: 'fld_desc',
+    pi_color: 'fld_ext'
+  });
+
+  // Header right side (TRN / Address / Country etc.) — best-effort fallbacks
+  setText(node, 'pi_trn',         getVal('fld_clientId') || getVal('fld_trn') || '');
+  setText(node, 'pi_bill_trn', (getVal('fld_trn') || '').trim());
+  
+// after (matches your form: you use fld_exportdst)
+setText(node, 'pi_bill_addr', getVal('fld_addr') || '');      // reuse Description as address (optional)
+setText(node, 'pi_country',   getVal('fld_country') || getVal('fld_exportdst') || '');
+ 
+
+  // Line item columns — reuse Quotation fields if available
+setText(node, 'pi_car',     getVal('fld_car'));
+setText(node, 'pi_chassis', getVal('fld_pi_chassis') || getVal('fld_chassis') || '');
+setText(node, 'pi_model'  , getVal('fld_pi_item')    || getVal('fld_item')    || '');
+setText(node, 'pi_year'   , getVal('fld_pi_year')    || getVal('fld_year')    || '');
+setText(node, 'pi_color'  , getVal('fld_pi_ext')     || getVal('fld_ext')     || '');
+  // ===== Amount logic (now uses top Amount if unit/qty empty) =====
+  const qtyField = parseInt(getVal('fld_qty') || '1', 10);
+  const qty  = Number.isFinite(qtyField) && qtyField > 0 ? qtyField : 1;
+
+  const unitFromQuotation = parseMoney(getVal('fld_unit'));     // Unit Price (Quotation area)
+  const amountTop         = parseMoney(getVal('fld_amount'));   // <-- TOP Amount (AED)
+
+  // If quotation unit available use that; else fall back to top Amount
+  const unitOrSingle = unitFromQuotation > 0 ? unitFromQuotation : amountTop;
+  const shipping     = parseMoney(getVal('fld_shipping')); // optional
+
+  // If we’re using top Amount, treat it as already-total (single line)
+  const total = (unitFromQuotation > 0) ? (unitOrSingle * qty) : amountTop;
+  const grand = total + (isFinite(shipping) ? shipping : 0);
+
+  // Fill table + totals
+  setText(node, 'pi_units', String(qty));
+  setText(node, 'pi_unit',  fmt(unitOrSingle));   // "Net Price AED" cell
+  setText(node, 'pi_total', fmt(total));
+  setText(node, 'pi_grand', fmt(grand));
+
+  // Amount in words
+  const w = node.querySelector('#pi_words');
+  if (w) w.textContent = numberToWordsEN(Math.round(grand || 0)) + ' Only';
+  
+
+
+  // Bank block toggle (uses your checkbox)
+  const bankWrap = node.querySelector('#pi_bankWrap');
+  const showBank = document.getElementById('opt_bank')?.checked
+                || document.getElementById('opt_bankdetail')?.checked;
+  if (bankWrap) {
+    if (showBank) {
+      bankWrap.style.display = '';
+      const bdiv = node.querySelector('#pi_bank');
+      if (bdiv) bdiv.innerHTML = bankBlockHTML();
+    } else {
+      bankWrap.style.display = 'none';
+    }
+  }
+
+// Export / Exit Destination — accept multiple possible IDs
+const exportDest =
+  getVal('fld_exportdst') ||
+  getVal('fld_export_destination') ||
+  getVal('fld_export') ||
+  document.getElementById('fld_exportdst')?.value ||
+  document.getElementById('fld_export')?.value || '';
+
+const exitDest =
+  getVal('fld_exitdst') ||
+  getVal('fld_exit_destination') ||
+  getVal('fld_exit') ||
+  document.getElementById('fld_exitdst')?.value ||
+  document.getElementById('fld_exit')?.value || '';
+
+setText(node, 'pi_export_dest', exportDest);
+setText(node, 'pi_exit_dest',   exitDest);
+
+
+
+
+}
+
+
+// ---------- End PROFORMA INVOICE ----------
+
+
+    // visibility
+    if(!document.getElementById('opt_logo').checked){
+      node.querySelectorAll('#logo_p,#logo_q,#logo_d,#logo_r_big').forEach(i=>i.style.display='none');
+    }
+    if(!document.getElementById('opt_signstamp').checked){
+      node.querySelectorAll('#r_signstamp,#p_signstamp,#q_signstamp,#d_signstamp').forEach(i=>i.style.display='none');
+    }
+
+    preview.innerHTML = '';
+    preview.appendChild(node);
+    preview.scrollTop = 0;
+  }
+
+
+
+  function map(scope, pairs){ Object.entries(pairs).forEach(([rid,fid])=> setText(scope, rid, getVal(fid))); }
+  function setText(scope,id,val){ const el = scope.querySelector('#'+id); if(el) el.textContent = val || ''; }
+  
+function getDocTypeTitle(){
+  // 1) From currentTpl key (most reliable)
+  if (typeof currentTpl !== 'undefined' && currentTpl){
+    const map = {
+      receipt:   'RECEIPT VOUCHER',
+      payment:   'PAYMENT VOUCHER',
+      quotation: 'SALES QUOTATION',
+      deposit:   'DEPOSIT RECEIPT',
+      proforma:'PROFORMA INVOICE'
+    };
+    if (map[currentTpl]) return map[currentTpl];
+  }
+
+  // 2) From the rendered preview node: <div class="doc" data-type="...">
+  const dt = document.querySelector('#preview .doc')?.getAttribute('data-type') || '';
+  if (dt) return String(dt).toUpperCase();
+
+  // 3) From disabled select (if present)
+  const raw = document.getElementById('docType')?.value || '';
+  if (raw){
+    const map2 = {
+      'Receipt Voucher': 'RECEIPT VOUCHER',
+      'Payment Voucher': 'PAYMENT VOUCHER',
+      'Sales Quotation': 'SALES QUOTATION',
+      'Deposit Receipt': 'DEPOSIT RECEIPT',
+      'Proforma Invoice': 'PROFORMA INVOICE' 
+      
+    };
+    return map2[raw] || String(raw).toUpperCase();
+  }
+
+  return 'DOCUMENT';
+}
+
+function buildFilename(){
+  const type = getDocTypeTitle(); // <- yahan se title aa raha
+  const name = (document.getElementById('fld_name')?.value || '').trim();
+  const date = (document.getElementById('fld_date')?.value || new Date().toISOString().slice(0,10)).trim();
+
+  const parts = [name || null, type, date].filter(Boolean);   // Name - TYPE - Date
+  return safeFileName(parts.join(' - ')) + '.pdf';
+}
+
+
+/* Minimal, robust sanitizer:
+   - Windows/macOS illegal chars hata deta hai
+   - Arabic/Urdu/Unicode rehne deta hai
+   - Spaces -> hyphen, multi hyphens -> single
+*/
+function safeFileName(s) {
+  return String(s)
+    .replace(/[/\\?%*:|"<>]/g, '')   // illegal filename chars
+    .replace(/\s+/g, ' ')            // collapse spaces
+    .trim()
+    .replace(/\s/g, '-')             // spaces -> hyphen
+    .replace(/-+/g, '-')             // multiple -> single
+    .replace(/^[-_]+|[-_]+$/g, '')   // trim hyphens/underscores
+    .slice(0, 80);                   // keep it short
+}
+
+
+const GAS_URL = 'https://script.google.com/macros/s/AKfycbz9EiRjVqq3LH0daHcJYMABubviUs-nn44-K3YzkTFTmKqZjXksFjY98ZJyRmQSYtSh/exec';
+
+
+async function downloadPDF(){
+  if(!currentTpl){ alert('Generate preview first.'); return; }
+
+  const src = document.querySelector('#preview .doc');
+  document.body.classList.add('exporting');
+
+  // hidden A4 clone
+  let sandbox = document.getElementById('pdf-sandbox');
+  if(!sandbox){
+    sandbox = document.createElement('div');
+    sandbox.id='pdf-sandbox';
+    document.body.appendChild(sandbox);
+  }
+  const clone = src.cloneNode(true);
+  clone.classList.add('for-pdf');
+  sandbox.innerHTML = '';
+  sandbox.appendChild(clone);
+
+  const opt = {
+    margin: 0,
+    filename: buildFilename(),            // aapka existing filename builder
+    image: { type:'jpeg', quality:0.98 },
+    html2canvas: { scale:2.5, useCORS:true, logging:false },
+    jsPDF: { unit:'mm', format:'a4', orientation:'portrait' },
+    pagebreak: { mode:['css','legacy'], avoid:'.signrow' }
+  };
+
+  try{
+    // Bas download karo — koi upload nahi
+    await html2pdf().set(opt).from(clone).save();
+  } catch(e){
+    console.error(e);
+    alert('PDF error: ' + e.message);
+  } finally {
+    // cleanup
+    sandbox.remove();
+    document.body.classList.remove('exporting');
+  }
+}
+
+
+  // ===== EN number-to-words (billions) =====
+  function numberToWordsEN(n){
+    n = Math.floor(Math.abs(n));
+    if(n===0) return "Zero";
+    const a=["","One","Two","Three","Four","Five","Six","Seven","Eight","Nine","Ten","Eleven","Twelve","Thirteen","Fourteen","Fifteen","Sixteen","Seventeen","Eighteen","Nineteen"];
+    const b=["","","Twenty","Thirty","Forty","Fifty","Sixty","Seventy","Eighty","Ninety"];
+    function chunk(num){
+      let str="";
+      if(num>=100){ str+=a[Math.floor(num/100)]+" Hundred"; num%=100; if(num) str+=" "; }
+      if(num>=20){ str+=b[Math.floor(num/10)]; num%=10; if(num) str+="-"+a[num]; }
+      else if(num>0){ str+=a[num]; }
+      return str;
+    }
+    const units=[1e12,1e9,1e6,1e3,1], names=[" Trillion"," Billion"," Million"," Thousand",""];
+    let out=[];
+    for(let i=0;i<units.length;i++){
+      const u=units[i], val=Math.floor(n/u); if(val){ out.push(chunk(val)+names[i]); n%=u; }
+    }
+    return out.join(" ");
+  }
+</script>
+</body>
+</html>
